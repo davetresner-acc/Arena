@@ -27,7 +27,7 @@ p{margin:0;font-size:14px;text-align:center;opacity:.8}
 <canvas id="c" width="800" height="600"></canvas>
 <div class="pad" id="pad"></div>
 <div class="tools"><button id="mute">🔊 Hudba</button><button id="fsb">⛶ Celá obrazovka</button><button id="menub">↩ Menu</button></div>
-<p>Postavy se točí samy. Online (G): hraj s přáteli na velké mapě, každý nově připojený dostane o číslo vyšší než předchozí. Body: zásah na střelnici +1 každému panáčkovi, kill +5 zabijákovi, výhra +20 vítězi (2 vs 2: +10 každému v týmu za kolo). Režim 1 = hra proti počítači, kdo první ztratí všechny životy, prohrál. Terče (C): stojíš uprostřed a 60 s střílíš samopalem do objevujících se terčů. Mód Zničit terče (X): náhodné zdi a 8 terčů, na začátku kola si vybereš jednu zbraň (klávesy 1–6), i nekoupenou. V obchodě (je i v menu) koupíš ořezávku, brokovnici a odstřelovačku a nasadíš si jednu hlavní zbraň; 🔄 přepíná hlavní zbraň, granát/bombu a nůž. Za zásahy dostaneš body a po kole si v obchodě vybereš panáčka a koupíš mu skiny zbraní. Drž tlačítko: jdeš vpřed. Každé nové stisknutí vystřelí; zásobník má 15 nábojů, pak 3 s dobíjení. Přepínání zbraní: samopal / granát (nebo bomba) / nůž (zabije jedním zásahem jen zblízka a s ním chodíš rychleji): S, K, B, M nebo 🔄. Každých 10 s se uprostřed objeví bedna: štít (5 s nesmrtelnosti), srdce, rychlost (srdce se při plném zdraví nahradí rychlostí) nebo granát. Režim 2 vs 2 (T): hráči 1+2 proti 3+4, spoluhráče nezraníš. Jeden útočník nese bombu 🧨 (přepni 🔄): v kruhu uprostřed ji položí tlačítkem pro střelbu a po 25 s vybuchne. Obránci ji zneškodní za 5 s stání v kruhu (odpočet se tím pozastaví). Po každém kole se role otáčí; vyhrává tým, který první získá 3 body. Po konci hry: R nebo klepnutí.</p>
+<p>Postavy se točí samy. Online (G): hraj s přáteli na velké mapě (samopal/zbraň, granát a nůž), každý nově připojený dostane o číslo vyšší než předchozí. Body: zásah na střelnici +1 každému panáčkovi, kill +5 zabijákovi, výhra +20 vítězi (2 vs 2: +10 každému v týmu za kolo). Režim 1 = hra proti počítači, kdo první ztratí všechny životy, prohrál. Terče (C): stojíš uprostřed a 60 s střílíš samopalem do objevujících se terčů. Mód Zničit terče (X): náhodné zdi a 8 terčů, na začátku kola si vybereš jednu zbraň (klávesy 1–6), i nekoupenou. V obchodě (je i v menu) koupíš ořezávku, brokovnici a odstřelovačku a nasadíš si jednu hlavní zbraň; 🔄 přepíná hlavní zbraň, granát/bombu a nůž. Za zásahy dostaneš body a po kole si v obchodě vybereš panáčka a koupíš mu skiny zbraní. Drž tlačítko: jdeš vpřed. Každé nové stisknutí vystřelí; zásobník má 15 nábojů, pak 3 s dobíjení. Přepínání zbraní: samopal / granát (nebo bomba) / nůž (zabije jedním zásahem jen zblízka a s ním chodíš rychleji): S, K, B, M nebo 🔄. Každých 10 s se uprostřed objeví bedna: štít (5 s nesmrtelnosti), srdce, rychlost (srdce se při plném zdraví nahradí rychlostí) nebo granát. Režim 2 vs 2 (T): hráči 1+2 proti 3+4, spoluhráče nezraníš. Jeden útočník nese bombu 🧨 (přepni 🔄): v kruhu uprostřed ji položí tlačítkem pro střelbu a po 25 s vybuchne. Obránci ji zneškodní za 5 s stání v kruhu (odpočet se tím pozastaví). Po každém kole se role otáčí; vyhrává tým, který první získá 3 body. Po konci hry: R nebo klepnutí.</p>
 <script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),W=800,H=600,pad=document.getElementById('pad');
 const COL=['#d9423a','#2f6fe0','#9b4fd0','#e0a020'],KEY=['a','l','v','n'],SW=['s','k','b','m'];
@@ -120,7 +120,7 @@ let FT=[],EX=[],KF=[],DR=[];
 function sw(p){if(p.hp<=0||rangeMode)return;if(trainMode)return;const av=[p.main];if(p.gren>0||p.bomb)av.push(1);av.push(2);p.weapon=av[(av.indexOf(p.weapon)+1)%av.length]}
 function drawDrops(){DR.forEach(d=>{const pu=2*Math.sin(performance.now()/200);ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.arc(d.x,d.y,16+pu,0,7);ctx.fill();ctx.fillStyle=GRS[eqp[d.o||0].gren].c;ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.beginPath();ctx.arc(d.x,d.y,8,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#aaa';ctx.fillRect(d.x-1.5,d.y-13,3,5)})}
 function awardWin(w){if(w<4&&P[w]&&!P[w].bot){coins[w]+=20;saveG();awardMsg='Hráč '+(w+1)+': +20 b.'}else awardMsg=''}
-function hurt(e,n,o){if(trainMode||(online&&e.remote))return;if(online&&e===P[0])lastHitBy=o;const was=e.hp>0;e.hp-=n;if(was&&e.hp<=0){const v=P.indexOf(e);if(e.gren>0){DR.push({x:e.x,y:e.y,o:v});e.gren=0;if(e.weapon===1&&!e.bomb)e.weapon=e.main}KF.push({t:2,txt:(P[o].bot?'Počítač':'Hráč '+(P[o].num||o+1))+(o===v?' se zabil':' zabil '+(P[v].bot?'počítač':'hráče '+(P[v].num||v+1)))});if(!online&&o!==v&&P[o]&&!P[o].bot){coins[o]+=5;saveG();FT.push({x:P[o].x,y:P[o].y-28,txt:'+5 b.',t:1.5})}}}
+function hurt(e,n,o){if(trainMode||(online&&e.remote))return;if(online&&e===P[0])lastHitBy=o;const was=e.hp>0;e.hp-=n;if(was&&e.hp<=0){const v=P.indexOf(e);if(!online&&e.gren>0){DR.push({x:e.x,y:e.y,o:v});e.gren=0;if(e.weapon===1&&!e.bomb)e.weapon=e.main}KF.push({t:2,txt:(P[o].bot?'Počítač':'Hráč '+(P[o].num||o+1))+(o===v?' se zabil':' zabil '+(P[v].bot?'počítač':'hráče '+(P[v].num||v+1)))});if(!online&&o!==v&&P[o]&&!P[o].bot){coins[o]+=5;saveG();FT.push({x:P[o].x,y:P[o].y-28,txt:'+5 b.',t:1.5})}}}
 function explode(b){EX.push({x:b.x,y:b.y,t:.45});P.forEach(e=>{if(e.hp>0&&e.shield<=0&&(e.team!==P[b.o].team||e===P[b.o])&&Math.hypot(e.x-b.x,e.y-b.y)<110)hurt(e,2,b.o)});if(trainMode)TG.forEach(g=>{if(Math.hypot(g.x-b.x,g.y-b.y)<110)g.dead=true});boom()}
 function give(p){let m;const r=Math.random(),q=Math.random();if(r<.3&&p.gren<1&&!p.bomb){p.gren=1;m='💣 Granát'}else if(q<1/3){p.shield=5;m='🛡 Štít'}else if(q<2/3&&p.hp<3){p.hp++;m='+1 ♥'}else{p.speed=5;m='⚡ Rychlost'}
  FT.push({x:p.x,y:p.y-26,txt:m,t:1.5});
@@ -269,6 +269,7 @@ function genWallsNet(){const rnd=mulb(20240607),out=[];
   if(out.some(o=>x<o[0]+o[2]+60&&x+ww>o[0]-60&&y<o[1]+o[3]+60&&y+hh>o[1]-60))continue;
   out.push([x,y,ww,hh])}return out}
 function netShot(o,x,y,a,w,sd){if(w===2)return;
+ if(w===1){B.push({x:x+Math.cos(a)*18,y:y+Math.sin(a)*18,vx:Math.cos(a)*300,vy:Math.sin(a)*300,o,g:true,life:1.2});return}
  const add=(aa,sp,ex)=>B.push(Object.assign({x:x+Math.cos(aa)*18,y:y+Math.sin(aa)*18,vx:Math.cos(aa)*sp,vy:Math.sin(aa)*sp,o},ex||{}));
  const rj=k=>(((sd*7919+k*104729)%997)/997-.5)*.05;
  if(w===3)for(let k=-2;k<=2;k++)add(a+k*.14+rj(k),400,{life:.6,pel:true});
@@ -277,7 +278,8 @@ function netShot(o,x,y,a,w,sd){if(w===2)return;
  else add(a,420)}
 function stabCheck(idx,s){const me=P[0];if(me.hp<=0||me.shield>0)return;const dx=me.x-s.x,dy=me.y-s.y;let d=Math.atan2(dy,dx)-s.a;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.hypot(dx,dy)<50&&Math.abs(d)<1)hurt(me,me.hp,idx)}
 function onlineFire(p){const w=p.weapon;let ok=false;
- if(w===2){if(p.kc<=0){p.kc=.5;p.stab=.15;ok=true;if(AC&&noiseBuf)noise(AC.currentTime,.1,.6,3000)}}
+ if(w===1){if(p.gren>0){p.gren=0;p.weapon=p.main;ok=true;if(AC&&noiseBuf)noise(AC.currentTime,.15,.4,2500)}else clickSnd()}
+ else if(w===2){if(p.kc<=0){p.kc=.5;p.stab=.15;ok=true;if(AC&&noiseBuf)noise(AC.currentTime,.1,.6,3000)}}
  else if(w===3){if(p.sgRel<=0&&p.wc<=0){p.wc=.7;ok=true;p.flash=.09;sgSound();if(--p.sgAmmo<=0){p.sgRel=2.5;reloadSound()}}else clickSnd()}
  else if(w===5){if(p.swRel<=0&&p.wc<=0){p.wc=.5;ok=true;p.flash=.09;sgSound();if(--p.swAmmo<=0){p.swRel=2;reloadSound()}}else clickSnd()}
  else if(w===4){if(p.snRel<=0&&p.wc<=0){p.wc=1;ok=true;p.flash=.1;snSound();if(--p.snAmmo<=0){p.snRel=3.5;reloadSound()}}else clickSnd()}
@@ -289,8 +291,8 @@ function netApply(pe){const d=pe.presence;if(!d)return;let idx=netMap[pe.peer];
  if(idx===undefined){idx=P.length;const r=mk([d.x||0,d.y||0,d.a||0],0,false);Object.assign(r,{remote:true,team:idx,tx:d.x||0,ty:d.y||0,ta:d.a||0,lastShot:(d.sh&&d.sh.length)?d.sh[d.sh.length-1].i:0,lastDk:d.dk?d.dk.i:0});P.push(r);netMap[pe.peer]=idx}
  const r=P[idx];r.num=d.n;r.col=PAL[(d.n-1)%PAL.length];r.tx=d.x||0;r.ty=d.y||0;r.ta=d.a||0;r.hp=d.hp|0;r.weapon=d.w|0;r.main=d.m|0;r.sk={smg:d.s|0,gren:d.g|0,knife:d.k|0};r.shield=d.sd?1:0;if(d.st&&r.stab<=0)r.stab=.15;r.kl=d.kl|0;
  if(r.gone){r.gone=false;r.x=r.tx;r.y=r.ty}
- (d.sh||[]).forEach(s=>{if(s.i>r.lastShot){r.lastShot=s.i;if(s.w===2)stabCheck(idx,s);else{netShot(idx,s.x,s.y,s.a,s.w,s.i);if(Math.hypot(s.x-P[0].x,s.y-P[0].y)<700){if(s.w===3||s.w===5)sgSound();else if(s.w===4)snSound();else shot()}}}});
- if(d.dk&&d.dk.i>r.lastDk){r.lastDk=d.dk.i;KF.push({t:3,txt:'Hráč '+(d.dk.b||'?')+' zabil hráče '+d.n});if(d.dk.b&&d.dk.b===netN){myKills++;coins[0]+=5;saveG();FT.push({x:P[0].x,y:P[0].y-28,txt:'+5 b.',t:1.5})}}}
+ (d.sh||[]).forEach(s=>{if(s.i>r.lastShot){r.lastShot=s.i;if(s.w===2)stabCheck(idx,s);else{netShot(idx,s.x,s.y,s.a,s.w,s.i);if(Math.hypot(s.x-P[0].x,s.y-P[0].y)<700){if(s.w===3||s.w===5)sgSound();else if(s.w===4)snSound();else if(s.w!==1)shot()}}}});
+ if(d.dk&&d.dk.i>r.lastDk){r.lastDk=d.dk.i;KF.push({t:3,txt:'Hráč '+(d.dk.b||'?')+' zabil hráče '+d.n});if(d.dk.b&&d.dk.b===netN){myKills++;coins[netSlot()]+=5;saveG();FT.push({x:P[0].x,y:P[0].y-28,txt:'+5 b.',t:1.5})}}}
 function netWinsOver(pe){const d=pe.presence;return d&&(d.n|0)===netN&&((d.t0||0)<myT0||((d.t0||0)===myT0&&pe.peer<myPeer))}
 function netPeersHandler(ch){if(!online)return;
  ch.left.forEach(pe=>{const i=netMap[pe.peer];if(i!==undefined){P[i].hp=0;P[i].gone=true}});
@@ -304,9 +306,11 @@ async function netClaim(){netBusy=true;
 function buildPad(){pad.innerHTML='';const p=P[0],b=document.createElement('button');b.textContent='Hráč '+netN+' ('+KEY[0].toUpperCase()+')';b.style.background=p.col;
  b.addEventListener('pointerdown',e=>{e.preventDefault();if(!p.down){p.down=true;p.fire=true}});['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,()=>p.down=false));
  const w=document.createElement('div');w.className='pg';const sb=document.createElement('button');sb.className='sw';sb.textContent='🔄 '+SW[0].toUpperCase();sb.style.background=p.col;sb.addEventListener('pointerdown',e=>{e.preventDefault();sw(p)});w.appendChild(b);w.appendChild(sb);pad.appendChild(w)}
-function respawnP(p){const sp=SP[(netN-1+deathSeq)%SP.length],d=p.down;Object.assign(p,mk([sp[0],sp[1],0],0,false),{team:0,col:PAL[(netN-1)%PAL.length],num:0,shield:2,hp:3,down:d});wasAlive=true;buildPad()}
+function respawnP(p){const sp=SP[(netN-1+deathSeq)%SP.length],d=p.down;Object.assign(p,mk([sp[0],sp[1],0],0,false),{team:0,col:PAL[(netN-1)%PAL.length],num:0,shield:2,hp:3,down:d});applyLoadout(p);wasAlive=true;buildPad()}
+function netSlot(){return netN>0?(netN-1)%4:0}
+function applyLoadout(p){const k=netSlot();p.main=mainSel[k];p.weapon=p.main;p.sk=eqp[k]}
 function netSend(){if(!room||!netN||!room.connected())return;const p=P[0];
- room.presence({n:netN,t0:myT0,x:Math.round(p.x),y:Math.round(p.y),a:+p.a.toFixed(2),hp:p.hp,w:p.weapon,m:p.main,s:eqp[0].smg,g:eqp[0].gren,k:eqp[0].knife,sh:myShots,kl:myKills,dk:myDeath,sd:p.shield>0?1:0,st:p.stab>0?1:0}).catch(()=>{})}
+ room.presence({n:netN,t0:myT0,x:Math.round(p.x),y:Math.round(p.y),a:+p.a.toFixed(2),hp:p.hp,w:p.weapon,m:p.main,s:eqp[netSlot()].smg,g:eqp[netSlot()].gren,k:eqp[netSlot()].knife,sh:myShots,kl:myKills,dk:myDeath,sd:p.shield>0?1:0,st:p.stab>0?1:0}).catch(()=>{})}
 function onlineTick(dt){const p=P[0];
  if(p.hp>0)wasAlive=true;
  if(p.hp<=0&&wasAlive){wasAlive=false;myDeath={b:(P[lastHitBy]&&P[lastHitBy].num)||0,i:++deathSeq};respawnT=3;p.weapon=p.main;p.stab=0}
@@ -348,7 +352,7 @@ async function startOnline(){
  await sleep(1800);if(!online)return;
  const meP=room.peers().find(p=>p.isMe&&p.sameTab);myPeer=meP?meP.peer:'';
  netStatus='Přidělují mi číslo…';await netClaim();if(!online)return;
- const sp=SP[(netN-1)%SP.length];l.x=sp[0];l.y=sp[1];l.col=PAL[(netN-1)%PAL.length];l.shield=2;
+ const sp=SP[(netN-1)%SP.length];l.x=sp[0];l.y=sp[1];l.col=PAL[(netN-1)%PAL.length];l.shield=2;applyLoadout(l);
  room.peers().forEach(pe=>{if(!pe.isMe)netApply(pe)});
  buildPad();FT.push({x:l.x,y:l.y-40,txt:'Jsi hráč číslo '+netN,t:3});netReady=true;netSend()}
 function leaveOnline(){if(room&&room.close){setTimeout(()=>{try{room.close()}catch(_){}},200)}online=false;netReady=false;WW=800;WH=600;WALLS=[];if(netUnsub){netUnsub();netUnsub=null}
@@ -358,6 +362,7 @@ function drawOnlineHUD(){const p=P[0];ctx.textBaseline='top';ctx.lineJoin='round
  if(!netReady){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 30px system-ui';ctx.fillText('Připojuji se k online hře…',W/2,H/2-30);ctx.font='16px system-ui';ctx.fillText(netStatus,W/2,H/2+12);ctx.textBaseline='alphabetic';return}
  const t='Hráč '+netN+'  '+(p.hp>0?'♥'.repeat(p.hp):'✖ obnova za '+Math.max(0,respawnT).toFixed(1)+' s')+'  '+wtxt(p);
  ctx.font='bold 20px system-ui';ctx.textAlign='left';ctx.lineWidth=4;ctx.strokeStyle='rgba(0,0,0,.8)';ctx.fillStyle=p.col;ctx.strokeText(t,12,10);ctx.fillText(t,12,10);
+ ctx.font='bold 14px system-ui';const bt='Body panáčka '+(netSlot()+1)+': '+coins[netSlot()];ctx.fillStyle='#ffd23f';ctx.strokeText(bt,12,36);ctx.fillText(bt,12,36);
  const list=[{n:netN,k:myKills,me:true},...P.filter(r=>r.remote&&!r.gone&&r.num).map(r=>({n:r.num,k:r.kl|0}))].sort((a,b)=>b.k-a.k).slice(0,6);
  ctx.font='bold 15px system-ui';ctx.textAlign='right';list.forEach((e,i)=>{const s2='Hráč '+e.n+(e.me?' (ty)':'')+': '+e.k+' ☠';ctx.strokeText(s2,W-12,10+i*20);ctx.fillStyle=e.me?'#ffd23f':'#fff';ctx.fillText(s2,W-12,10+i*20)});
  const mw=150,mh=100,mx=W-mw-10,my=H-mh-10,sx=mw/WW,sy=mh/WH;ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(mx,my,mw,mh);ctx.fillStyle='rgba(200,200,210,.8)';WALLS.forEach(w=>ctx.fillRect(mx+w[0]*sx,my+w[1]*sy,Math.max(1.5,w[2]*sx),Math.max(1.5,w[3]*sy)));
@@ -464,8 +469,8 @@ function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;
    }});
   B.forEach(b=>{
    if(b.g){b.life-=dt;let nx=b.x+b.vx*dt,ny=b.y+b.vy*dt;
-    if(nx<6||nx>W-6||hitW(nx,b.y,6)){b.vx*=-.8;nx=b.x}
-    if(ny<6||ny>H-6||hitW(b.x,ny,6)){b.vy*=-.8;ny=b.y}
+    if(nx<6||nx>WW-6||hitW(nx,b.y,6)){b.vx*=-.8;nx=b.x}
+    if(ny<6||ny>WH-6||hitW(b.x,ny,6)){b.vy*=-.8;ny=b.y}
     b.x=nx;b.y=ny;
     if(b.life<=0||P.some((e,j)=>j!==b.o&&e.team!==P[b.o].team&&e.hp>0&&Math.hypot(e.x-b.x,e.y-b.y)<18)||(trainMode&&TG.some(g=>!g.dead&&Math.hypot(g.x-b.x,g.y-b.y)<g.r+9))){b.dead=true;explode(b)}
     return}
@@ -522,7 +527,7 @@ function draw(){if(!online)ctx.drawImage(GR,0,0);ctx.textAlign='center';
   if(p.shield>0&&(p.shield>1.5||Math.floor(p.shield*8)%2)){ctx.strokeStyle='rgba(80,220,255,.95)';ctx.fillStyle='rgba(80,220,255,.28)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,23,0,7);ctx.fill();ctx.stroke()}
   if(p.speed>0){ctx.strokeStyle='#ffe14d';ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(0,0,19,0,7);ctx.stroke();ctx.setLineDash([])}
   ctx.restore()});
- B.forEach(b=>{ctx.fillStyle=b.g?GRS[eqp[b.o].gren].c:P[b.o].col;ctx.beginPath();ctx.arc(b.x,b.y,b.g?7:b.sn?5:b.pel?2.5:4,0,7);ctx.fill();if(b.g){ctx.lineWidth=2;ctx.strokeStyle='#111';ctx.stroke()}});
+ B.forEach(b=>{ctx.fillStyle=b.g?GRS[((P[b.o]&&P[b.o].sk)||eqp[b.o]||eqp[0]).gren].c:(P[b.o]?P[b.o].col:'#fff');ctx.beginPath();ctx.arc(b.x,b.y,b.g?7:b.sn?5:b.pel?2.5:4,0,7);ctx.fill();if(b.g){ctx.lineWidth=2;ctx.strokeStyle='#111';ctx.stroke()}});
  if(online){ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.8)';ctx.fillStyle='#fff';P.forEach(q=>{if(q.hp<=0||q.gone)return;const t=q===P[0]?'Ty ('+netN+')':'Hráč '+q.num;ctx.strokeText(t,q.x,q.y-24);ctx.fillText(t,q.x,q.y-24)})}
  EX.forEach(x=>{const k=x.t/(x.d||.45),r=(x.r||110)*(1.0-.7*k);ctx.globalAlpha=Math.min(1,k+.2);ctx.fillStyle='#ff9d2e';ctx.beginPath();ctx.arc(x.x,x.y,r,0,7);ctx.fill();ctx.fillStyle='#fff3b0';ctx.beginPath();ctx.arc(x.x,x.y,r*.55,0,7);ctx.fill()});ctx.globalAlpha=1;
  ctx.font='bold 18px system-ui';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.lineJoin='round';FT.forEach(f=>{ctx.globalAlpha=Math.min(1,f.t);ctx.strokeStyle='rgba(0,0,0,.8)';ctx.fillStyle='#fff';ctx.strokeText(f.txt,f.x,f.y);ctx.fillText(f.txt,f.x,f.y)});ctx.globalAlpha=1;
